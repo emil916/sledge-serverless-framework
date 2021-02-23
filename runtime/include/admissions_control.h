@@ -10,6 +10,8 @@
 
 #define ADMISSIONS_CONTROL_GRANULARITY 1000000
 
+#define ADMISSIONS_CONTROL
+
 /*
  * Unitless estimate of the instantaneous fraction of system capacity required to complete all previously
  * admitted work. This is used to calculate free capacity as part of admissions control
