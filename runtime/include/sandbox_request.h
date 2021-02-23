@@ -26,6 +26,9 @@ struct sandbox_request {
 	 * Calculated by estimated execution time (cycles) * runtime_admissions_granularity / relative deadline (cycles)
 	 */
 	uint64_t admissions_estimate;
+
+	/* This is somewhat redundant if the admissions_estimate is there, but easy to just carry one for future */
+	uint64_t         expected_execution;        /* cycles */
 };
 
 DEQUE_PROTOTYPE(sandbox, struct sandbox_request *);
@@ -87,6 +90,8 @@ sandbox_request_allocate(struct module *module, char *arguments, int socket_desc
 	 */
 	assert(admissions_estimate != 0);
 	sandbox_request->admissions_estimate = admissions_estimate;
+	
+	sandbox_request->expected_execution = module->admissions_info.expected_execution;
 
 	sandbox_request_log_allocation(sandbox_request);
 

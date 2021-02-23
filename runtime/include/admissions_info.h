@@ -7,6 +7,7 @@ struct admissions_info {
 	struct perf_window perf_window;
 	int                percentile;        /* 50 - 99 */
 	int                control_index;     /* Precomputed Lookup index when perf_window is full */
+	uint64_t           expected_execution;/* cycles */
 	uint64_t           estimate;          /* cycles */
 	uint64_t           relative_deadline; /* Relative deadline in cycles. This is duplicated state */
 };
@@ -22,6 +23,7 @@ admissions_info_initialize(struct admissions_info *self, int percentile, uint64_
 #ifdef ADMISSIONS_CONTROL
 
 	self->relative_deadline = relative_deadline;
+	self->expected_execution = expected_execution;
 	self->estimate          = admissions_control_calculate_estimate(expected_execution, relative_deadline);
 	debuglog("Initial Estimate: %lu\n", self->estimate);
 	assert(self != NULL);
@@ -54,6 +56,7 @@ admissions_info_update(struct admissions_info *self, uint64_t execution_duration
 	LOCK_LOCK(&self->perf_window.lock);
 	perf_window_add(perf_window, execution_duration);
 	uint64_t estimated_execution = perf_window_get_percentile(perf_window, self->percentile, self->control_index);
+	self->expected_execution = estimated_execution;
 	self->estimate = admissions_control_calculate_estimate(estimated_execution, self->relative_deadline);
 	LOCK_UNLOCK(&self->perf_window.lock);
 #endif

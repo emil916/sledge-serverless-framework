@@ -64,6 +64,9 @@ struct sandbox {
 	 */
 	uint64_t admissions_estimate;
 
+	/* This is somewhat redundant if the admissions_estimate is there, but easy to just carry one for future */
+	uint64_t expected_execution; /* cycles */
+
 	struct module *module; /* the module this is an instance of */
 
 	int32_t arguments_offset; /* actual placement of arguments in the sandbox. */
@@ -244,11 +247,13 @@ sandbox_print_perf(struct sandbox *sandbox)
 	uint32_t running_us      = sandbox->running_duration / runtime_processor_speed_MHz;
 	uint32_t blocked_us      = sandbox->blocked_duration / runtime_processor_speed_MHz;
 	uint32_t returned_us     = sandbox->returned_duration / runtime_processor_speed_MHz;
+	uint32_t expected_us     = sandbox->expected_execution / runtime_processor_speed_MHz;
 
-	fprintf(runtime_sandbox_perf_log, "%lu,%s():%d,%s,%u,%u,%u,%u,%u,%u,%u,%u\n", sandbox->id,
+	fprintf(runtime_sandbox_perf_log, "%lu,%s():%d,%s,%u,%u,%u,%u,%u,%u,%u,%u,%u\n", sandbox->id,
 	        sandbox->module->name, sandbox->module->port, sandbox_state_stringify(sandbox->state),
-	        sandbox->module->relative_deadline_us, total_time_us, queued_us, initializing_us, runnable_us,
-	        running_us, blocked_us, returned_us);
+	        expected_us, sandbox->module->relative_deadline_us, queued_us, initializing_us, runnable_us,
+	        running_us, blocked_us, returned_us, total_time_us);
+fflush(runtime_sandbox_perf_log); //////////////////////// Added for bench, to be removed later!
 }
 
 static inline void
@@ -269,6 +274,7 @@ INLINE void sandbox_set_as_runnable(struct sandbox *sandbox, sandbox_state_t las
 INLINE void sandbox_set_as_running(struct sandbox *sandbox, sandbox_state_t last_state);
 INLINE void sandbox_set_as_blocked(struct sandbox *sandbox, sandbox_state_t last_state);
 INLINE void sandbox_set_as_preempted(struct sandbox *sandbox, sandbox_state_t last_state);
+// INLINE void sandbox_set_as_fallen(struct sandbox *sandbox, sandbox_state_t last_state);
 INLINE void sandbox_set_as_returned(struct sandbox *sandbox, sandbox_state_t last_state);
 INLINE void sandbox_set_as_complete(struct sandbox *sandbox, sandbox_state_t last_state);
 INLINE void sandbox_set_as_error(struct sandbox *sandbox, sandbox_state_t last_state);

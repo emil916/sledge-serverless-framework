@@ -10,6 +10,8 @@
 #include "priority_queue.h"
 #include "software_interrupt.h"
 
+// #include "local_fallback_queue.h" ///////// to remove!!!
+
 __thread static struct priority_queue *local_runqueue_minheap;
 
 /**
@@ -123,9 +125,10 @@ local_runqueue_minheap_preempt(ucontext_t *user_context)
 	software_interrupt_disable();
 
 	struct sandbox *current_sandbox = current_sandbox_get();
+	// struct sandbox *next_sandbox = NULL; /* To be either from local or global */
 
 	/* If current_sandbox is null, there's nothing to preempt, so let the "main" scheduler run its course. */
-	if (current_sandbox == NULL) {
+	if (current_sandbox == NULL) { 
 		software_interrupt_enable();
 		return;
 	};
@@ -136,6 +139,48 @@ local_runqueue_minheap_preempt(ucontext_t *user_context)
 	bool     should_enable_software_interrupt = true;
 	uint64_t local_deadline                   = priority_queue_peek(local_runqueue_minheap);
 	uint64_t global_deadline                  = global_request_scheduler_peek();
+
+	// uint64_t expected_execution = current_sandbox->expected_execution;
+
+	// uint64_t now = __getcycles();
+	// uint64_t duration_of_last_state = now - current_sandbox->last_state_change_timestamp;
+	// uint64_t execution_duration_so_far = current_sandbox->running_duration + duration_of_last_state;
+
+	// if(expected_execution < execution_duration_so_far) {
+	// 	assert(current_sandbox->state == SANDBOX_RUNNING);
+	// 	sandbox_set_as_fallen(current_sandbox, SANDBOX_RUNNING);
+
+	// 	/* Save the context of the currently executing sandbox before switching from it */
+	// 	arch_mcontext_save(&current_sandbox->ctxt, &user_context->uc_mcontext);
+
+	// 	next_sandbox = local_runqueue_minheap_get_next(); 
+	// 	if(next_sandbox == NULL) {
+	// 		// arch_context_switch(&current_sandbox->ctxt, &worker_thread_base_context);
+	// 		// arch_context_init(&worker_thread_base_context, 0, 0);
+	// 		current_sandbox_set(NULL);
+	// 		software_interrupt_enable(); 
+	// 		return;
+	// 	}
+		
+	// 	/* Set as runnable and add it to the runqueue */
+	// 	sandbox_set_as_runnable(next_sandbox, next_sandbox->state);
+
+	// 	/* Update current_sandbox to the next sandbox */
+	// 	assert(next_sandbox->state == SANDBOX_RUNNABLE);
+	// 	sandbox_set_as_running(next_sandbox, SANDBOX_RUNNABLE);
+
+	// 	/*
+	// 	 * Restore the context of this next sandbox
+	// 	 * user-level context switch state, so do not enable software interrupts.
+	// 	 * TODO: Review the interrupt logic here. Issue #63
+	// 	 */
+	// 	arch_context_restore_new(&user_context->uc_mcontext, &next_sandbox->ctxt);
+	// 	should_enable_software_interrupt = false;
+
+	// 	goto done;
+	// }
+
+
 	/* If we're able to get a sandbox request with a tighter deadline, preempt the current context and run it */
 	struct sandbox_request *sandbox_request = NULL;
 	if (global_deadline < local_deadline) {
