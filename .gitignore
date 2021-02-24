@@ -51,7 +51,8 @@ Mkfile.old
 dkms.conf
 
 runtime/tags
-runtime/bin
+#runtime/bin ################################# temporal comment, uncomment later! below line to be removed, too!
+runtime/bin/sledgert 
 runtime/tests/tmp/
 runtime/tests/**/*.csv
 runtime/tests/**/*.txt
