@@ -253,7 +253,7 @@ sandbox_print_perf(struct sandbox *sandbox)
 	        sandbox->module->name, sandbox->module->port, sandbox_state_stringify(sandbox->state),
 	        expected_us, sandbox->module->relative_deadline_us, queued_us, initializing_us, runnable_us,
 	        running_us, blocked_us, returned_us, total_time_us);
-fflush(runtime_sandbox_perf_log); //////////////////////// Added for bench, to be removed later!
+// fflush(runtime_sandbox_perf_log); //////////////////////// Added for bench, to be removed later!
 }
 
 static inline void
