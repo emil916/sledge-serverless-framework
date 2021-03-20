@@ -274,7 +274,6 @@ INLINE void sandbox_set_as_runnable(struct sandbox *sandbox, sandbox_state_t las
 INLINE void sandbox_set_as_running(struct sandbox *sandbox, sandbox_state_t last_state);
 INLINE void sandbox_set_as_blocked(struct sandbox *sandbox, sandbox_state_t last_state);
 INLINE void sandbox_set_as_preempted(struct sandbox *sandbox, sandbox_state_t last_state);
-// INLINE void sandbox_set_as_fallen(struct sandbox *sandbox, sandbox_state_t last_state);
 INLINE void sandbox_set_as_returned(struct sandbox *sandbox, sandbox_state_t last_state);
 INLINE void sandbox_set_as_complete(struct sandbox *sandbox, sandbox_state_t last_state);
 INLINE void sandbox_set_as_error(struct sandbox *sandbox, sandbox_state_t last_state);

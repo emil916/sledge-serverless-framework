@@ -148,10 +148,13 @@ local_runqueue_minheap_preempt(ucontext_t *user_context)
 
 	// if(expected_execution < execution_duration_so_far) {
 	// 	assert(current_sandbox->state == SANDBOX_RUNNING);
-	// 	sandbox_set_as_fallen(current_sandbox, SANDBOX_RUNNING);
+	// 	sandbox_set_as_runnable(current_sandbox, SANDBOX_RUNNING);
 
 	// 	/* Save the context of the currently executing sandbox before switching from it */
 	// 	arch_mcontext_save(&current_sandbox->ctxt, &user_context->uc_mcontext);
+
+	// 	local_runqueue_add(current_sandbox);
+	// 	local_runqueue_minheap_delete(current_sandbox); // or remove???
 
 	// 	next_sandbox = local_runqueue_minheap_get_next(); 
 	// 	if(next_sandbox == NULL) {

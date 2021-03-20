@@ -44,28 +44,28 @@ local_runqueue_list_remove_and_return()
 struct sandbox *
 local_runqueue_list_get_next()
 {
-	struct sandbox_request *sandbox_request;
+		struct sandbox_request *sandbox_request;
 
-	// If our local runqueue is empty, try to pull and allocate a sandbox request from the global request scheduler
-	if (local_runqueue_is_empty()) {
-		if (global_request_scheduler_remove(&sandbox_request) < 0) goto err;
+		// If our local runqueue is empty, try to pull and allocate a sandbox request from the global request scheduler
+		if (local_runqueue_is_empty()) {
+			if (global_request_scheduler_remove(&sandbox_request) < 0) goto err;
 
-		struct sandbox *sandbox = sandbox_allocate(sandbox_request);
-		if (!sandbox) goto err_allocate;
+			struct sandbox *sandbox = sandbox_allocate(sandbox_request);
+			if (!sandbox) goto err_allocate;
 
-		sandbox->state = SANDBOX_RUNNABLE;
-		local_runqueue_add(sandbox);
+			sandbox->state = SANDBOX_RUNNABLE;
+			local_runqueue_add(sandbox);
 
-	done:
-		return sandbox;
-	err_allocate:
-		client_socket_send(sandbox_request->socket_descriptor, 503);
-		client_socket_close(sandbox_request->socket_descriptor);
-		free(sandbox_request);
-	err:
-		sandbox = NULL;
-		goto done;
-	}
+		done:
+			return sandbox;
+		err_allocate:
+			client_socket_send(sandbox_request->socket_descriptor, 503);
+			client_socket_close(sandbox_request->socket_descriptor);
+			free(sandbox_request);
+		err:
+			sandbox = NULL;
+			goto done;
+		}
 
 	/* Execute Round Robin Scheduling Logic */
 	struct sandbox *next_sandbox = local_runqueue_list_remove_and_return();
